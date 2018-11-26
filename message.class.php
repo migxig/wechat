@@ -49,12 +49,23 @@ class message{
 
 	public function getAccessToken()
     {
-        $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$this->appid."&secret=".$this->appsecret;
-        $data = $this->wxCurl($url);
+        $key = "access_token";
+        $redis = $this->getRedis();
 
-        //var_dump($data);
+        if($redis->get($key)) {
+            $accessToken = $redis->get($key);
+        } else {
+            $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$this->appid."&secret=".$this->appsecret;
+            $data = $this->wxCurl($url);
+            if(isset($data['access_token']) && $data['access_token']) {
+                $redis->set($key, $data['access_token']);
+            }
 
-        return $data['access_token'];
+            $accessToken = $data['access_token'];
+        }
+        //var_dump($accessToken);
+
+        return $accessToken;
     }
 
     public function getWxIpList()
@@ -63,7 +74,7 @@ class message{
         $url = "https://api.weixin.qq.com/cgi-bin/getcallbackip?access_token=".$accessToken;
         $data = $this->wxCurl($url);
 
-        var_dump($data);
+        //var_dump($data);
 
         return $data;
     }
