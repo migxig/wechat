@@ -134,9 +134,10 @@ class message{
 			    $city = $postObj->Content;
                 $url="http://wthrcdn.etouch.cn/weather_mini?city=".$city;
                 $strZip = file_get_contents($url);
-                $result= gzdecode($strZip);
+                $resultJson = gzdecode($strZip);
                 $template = "<xml> <ToUserName><![CDATA[%s]]></ToUserName> <FromUserName><![CDATA[%s]]></FromUserName> <CreateTime>%s</CreateTime> <MsgType><![CDATA[%s]]></MsgType> <Content><![CDATA[%s]]></Content> </xml>";
                 $content = '';
+                $result = json_decode($resultJson, 1);
                 if($result) {
                     $content .= "城市：".$result['data']['city']."\n";
                     $content .= "日期：".$result['data']['forecast'][0]['date']."\n";
