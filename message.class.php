@@ -1,6 +1,9 @@
 <?php
 
 class message{
+    private $appid = "wx29ba4b74715ef05b";
+    private $appsecret = "fef5aca24e72f0f6129503165deef862";
+
 	public function getDb() 
 	{
 		$dsn = 'mysql:host=127.0.0.1;dbname=MX;charset=utf8';
@@ -20,12 +23,37 @@ class message{
 		$redis = new Redis();
    		$redis->connect('127.0.0.1', 6379);
 
-   		echo "Connection to server sucessfully";
-         	//查看服务是否运行
-   		echo "Server is running: " . $redis->ping();
+        //查看服务是否运行
+        //echo "Connection to server sucessfully";
+   		//echo "Server is running: " . $redis->ping();
 
 		return $redis;
 	}
+
+	public function wxCurl($url)
+    {
+        //初始化
+        $ch = curl_init();
+        //设置参数
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        //采集数据
+        $res = curl_exec($ch);
+        if(curl_errno($ch)) {
+            var_dump(curl_error($ch));
+        }
+
+        $dataArr = json_decode($res, 1);
+        return $dataArr;
+    }
+
+	public function getAccessToken()
+    {
+        $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$this->appid."&secret=".$this->appsecret;
+        $data = $this->wxCurl($url);
+
+        return $data;
+    }
 
 	public function responseMsg()
 	{
