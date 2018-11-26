@@ -25,6 +25,7 @@ $echoStr = isset($_GET['echostr']) ? $_GET['echostr'] : '';
 if($echoStr) {
     //验证微信发来的消息
     $check = validWx();
+    exit;
 } else {
     //根据参数执行控制器-方法
     $ct = isset($_GET['ct']) ? trim($_GET['ct']) : '';
