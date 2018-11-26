@@ -1,8 +1,12 @@
 <?php
 
 class message{
-    private $appid = "wx29ba4b74715ef05b";
-    private $appsecret = "fef5aca24e72f0f6129503165deef862";
+//    private $appid = "wx29ba4b74715ef05b";
+//    private $appsecret = "fef5aca24e72f0f6129503165deef862";
+
+    //测试号
+    private $appid = "wxa4e670ac8ee5eea0";
+    private $appsecret = "701c03e4ca96eb9f565231a1944e8a8f";
 
 	public function getDb() 
 	{
@@ -30,13 +34,17 @@ class message{
 		return $redis;
 	}
 
-	public function wxCurl($url)
+	public function wxCurl($url, $type = 'get', $format = 'json', $postJson='')
     {
         //初始化
         $ch = curl_init();
         //设置参数
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        if($type == 'post') {
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postJson);
+        }
         //采集数据
         $res = curl_exec($ch);
         //关闭
@@ -45,8 +53,12 @@ class message{
             var_dump(curl_error($ch));
         }
 
-        $dataArr = json_decode($res, 1);
-        return $dataArr;
+        if($format == 'json') {
+            $data = json_decode($res, 1);
+        } else {
+            $data = $res;
+        }
+        return $data;
     }
 
 	public function getAccessToken()
@@ -58,7 +70,7 @@ class message{
             $accessToken = $redis->get($key);
         } else {
             $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$this->appid."&secret=".$this->appsecret;
-            $data = $this->wxCurl($url);
+            $data = $this->wxCurl($url, 'get', 'json');
             if(isset($data['access_token']) && $data['access_token']) {
                 $redis->set($key, $data['access_token']);
                 $redis->expire($key, 7180);
@@ -75,7 +87,7 @@ class message{
     {
         $accessToken = $this->getAccessToken();
         $url = "https://api.weixin.qq.com/cgi-bin/getcallbackip?access_token=".$accessToken;
-        $data = $this->wxCurl($url);
+        $data = $this->wxCurl($url, 'get', 'json');
 
         //var_dump($data);
 
@@ -155,4 +167,43 @@ class message{
 			echo $info;
 		} 
 	}
+
+    public function definedMenu()
+    {
+        $access_token = $this->getAccessToken();
+        $url = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=".$access_token;
+        $postArr = [
+            'button' => [
+                [
+                    'type'=>'click',
+                    'name'=>'菜单1',
+                    'key'=>'menu1',
+                ],
+                [
+                    'name'=>'菜单2',
+                    'sub_button'=>[
+                        [
+                            'type'=>'click',
+                            'name'=>'二级菜单1',
+                            'key'=>'sub_menu1',
+                        ],
+                        [
+                            'type'=>'view',
+                            'name'=>'二级菜单2',
+                            'url'=>'http://www.baidu.com',
+                        ],
+                    ],
+                ],
+                [
+                    'type'=>'view',
+                    'name'=>'菜单3',
+                    'url'=>'http://www.qq.com',
+                ],
+            ],
+        ];
+        $postJson = json_encode($postArr);
+        $data = $this->wxCurl($url, 'post', 'json', $postJson);
+
+
+    }
 }
