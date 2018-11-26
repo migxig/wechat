@@ -48,8 +48,7 @@ class message{
         //采集数据
         $res = curl_exec($ch);
         //关闭
-        curl_close($ch);
-
+        //curl_close($ch);
 
         if($format == 'json') {
             if(curl_errno($ch)) {
@@ -208,6 +207,6 @@ class message{
         $postJson = urldecode(json_encode($postArr));
         $data = $this->wxCurl($url, 'post', 'json', $postJson);
 
-
+        var_dump($data);
     }
 }
