@@ -49,12 +49,14 @@ class message{
         $res = curl_exec($ch);
         //关闭
         curl_close($ch);
-        if(curl_errno($ch)) {
-            var_dump(curl_error($ch));
-        }
+
 
         if($format == 'json') {
-            $data = json_decode($res, 1);
+            if(curl_errno($ch)) {
+                return curl_error($ch);
+            } else {
+                $data = json_decode($res, 1);
+            }
         } else {
             $data = $res;
         }
@@ -170,38 +172,40 @@ class message{
 
     public function definedMenu()
     {
+        header('content-type: text/html;charset=utf-8');
+
         $access_token = $this->getAccessToken();
         $url = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=".$access_token;
         $postArr = [
             'button' => [
                 [
                     'type'=>'click',
-                    'name'=>'菜单1',
+                    'name'=>urlencode('菜单1'),
                     'key'=>'menu1',
                 ],
                 [
-                    'name'=>'菜单2',
+                    'name'=>urlencode('菜单2'),
                     'sub_button'=>[
                         [
                             'type'=>'click',
-                            'name'=>'二级菜单1',
+                            'name'=>urlencode('二级菜单1'),
                             'key'=>'sub_menu1',
                         ],
                         [
                             'type'=>'view',
-                            'name'=>'二级菜单2',
+                            'name'=>urlencode('二级菜单2'),
                             'url'=>'http://www.baidu.com',
                         ],
                     ],
                 ],
                 [
                     'type'=>'view',
-                    'name'=>'菜单3',
+                    'name'=>urlencode('菜单3'),
                     'url'=>'http://www.qq.com',
                 ],
             ],
         ];
-        $postJson = json_encode($postArr);
+        $postJson = urldecode(json_encode($postArr));
         $data = $this->wxCurl($url, 'post', 'json', $postJson);
 
 
