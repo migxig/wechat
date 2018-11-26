@@ -138,18 +138,18 @@ class message{
                 $template = "<xml> <ToUserName><![CDATA[%s]]></ToUserName> <FromUserName><![CDATA[%s]]></FromUserName> <CreateTime>%s</CreateTime> <MsgType><![CDATA[%s]]></MsgType> <Content><![CDATA[%s]]></Content> </xml>";
                 $content = '';
                 $result = json_decode($resultJson, 1);
-                $content = $result;
+                file_put_contents('log/log.txt', $resultJson);
 
-//                if($result) {
-//                    $content .= "城市：".$result['data']['city']."\n";
-//                    $content .= "日期：".$result['data']['forecast'][0]['date']."\n";
-//                    $content .= "天气：".$result['data']['forecast'][0]['type']."\n";
-//                    $content .= "低温：".$result['data']['forecast'][0]['low']."\n";
-//                    $content .= "高温：".$result['data']['forecast'][0]['high']."\n";
-//                    $content .= "风向：".$result['data']['forecast'][0]['fengxiang']."\n";
-//                } else {
-//                    $content = '无相关信息';
-//                }
+                if($result) {
+                    $content .= "城市：".$result['data']['city']."\n";
+                    $content .= "日期：".$result['data']['forecast'][0]['date']."\n";
+                    $content .= "天气：".$result['data']['forecast'][0]['type']."\n";
+                    $content .= "低温：".$result['data']['forecast'][0]['low']."\n";
+                    $content .= "高温：".$result['data']['forecast'][0]['high']."\n";
+                    $content .= "风向：".$result['data']['forecast'][0]['fengxiang']."\n";
+                } else {
+                    $content = '无相关信息';
+                }
                 $info = sprintf($template, $toUser, $fromUser, $time, 'text', $content);
             }
 
