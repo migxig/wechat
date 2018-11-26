@@ -54,7 +54,7 @@ class message{
 
         //var_dump($data);
 
-        return $data;
+        return $data['access_token'];
     }
 
     public function getWxIpList()
