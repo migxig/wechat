@@ -39,6 +39,8 @@ class message{
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         //采集数据
         $res = curl_exec($ch);
+        //关闭
+        curl_close($ch);
         if(curl_errno($ch)) {
             var_dump(curl_error($ch));
         }
@@ -59,6 +61,7 @@ class message{
             $data = $this->wxCurl($url);
             if(isset($data['access_token']) && $data['access_token']) {
                 $redis->set($key, $data['access_token']);
+                $redis->expire($key, 7180);
             }
 
             $accessToken = $data['access_token'];
@@ -97,8 +100,8 @@ class message{
                 		$time = time();
                 		$msgType = 'text';
                 		$content = "欢迎关注No3No4o\n";
-				$content .= "回复姓名即可查看用户简介\n";
-				$content .= "如: 嘟嘟\n";
+				$content .= "回复城市名称即可查看天气情况\n";
+				$content .= "如: 广州市\n";
 
 	$template = "<xml> <ToUserName><![CDATA[%s]]></ToUserName> <FromUserName><![CDATA[%s]]></FromUserName> <CreateTime>%s</CreateTime> <MsgType><![CDATA[%s]]></MsgType> <Content><![CDATA[%s]]></Content> </xml>";
 		
@@ -128,9 +131,24 @@ class message{
 				$tmpStr .= "</Articles></xml>";			
 				$info = sprintf($tmpStr, $toUser, $fromUser, $time, 'news');
 			} else {
-				$template = "<xml> <ToUserName><![CDATA[%s]]></ToUserName> <FromUserName><![CDATA[%s]]></FromUserName> <CreateTime>%s</CreateTime> <MsgType><![CDATA[%s]]></MsgType> <Content><![CDATA[%s]]></Content> </xml>";
-				$info = sprintf($template, $toUser, $fromUser, $time, 'text', '你想做啥子，别乱来别乱来');
-			}
+			    $city = $postObj->Content;
+                $url="http://wthrcdn.etouch.cn/weather_mini?city=".$city;
+                $strZip = file_get_contents($url);
+                $result= gzdecode($strZip);
+                $template = "<xml> <ToUserName><![CDATA[%s]]></ToUserName> <FromUserName><![CDATA[%s]]></FromUserName> <CreateTime>%s</CreateTime> <MsgType><![CDATA[%s]]></MsgType> <Content><![CDATA[%s]]></Content> </xml>";
+                $content = '';
+                if($result) {
+                    $content .= "城市：".$result['data']['city']."\n";
+                    $content .= "日期：".$result['data']['forecast'][0]['date']."\n";
+                    $content .= "天气：".$result['data']['forecast'][0]['type']."\n";
+                    $content .= "低温：".$result['data']['forecast'][0]['low']."\n";
+                    $content .= "高温：".$result['data']['forecast'][0]['high']."\n";
+                    $content .= "风向：".$result['data']['forecast'][0]['fengxiang']."\n";
+                } else {
+                    $content = '无相关信息';
+                }
+                $info = sprintf($template, $toUser, $fromUser, $time, 'text', $content);
+            }
 
 			echo $info;
 		} 
