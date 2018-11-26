@@ -57,6 +57,17 @@ class message{
         return $data;
     }
 
+    public function getWxIpList()
+    {
+        $accessToken = $this->getAccessToken();
+        $url = "https://api.weixin.qq.com/cgi-bin/getcallbackip?access_token=".$accessToken;
+        $data = $this->wxCurl($url);
+
+        var_dump($data);
+
+        return $data;
+    }
+
 	public function responseMsg()
 	{
 		header('Content-type: text/html;charset=utf-8');
