@@ -138,9 +138,8 @@ class message{
                 $template = "<xml> <ToUserName><![CDATA[%s]]></ToUserName> <FromUserName><![CDATA[%s]]></FromUserName> <CreateTime>%s</CreateTime> <MsgType><![CDATA[%s]]></MsgType> <Content><![CDATA[%s]]></Content> </xml>";
                 $content = '';
                 $result = json_decode($resultJson, 1);
-                file_put_contents('log/log.txt', $resultJson);
 
-                if($result) {
+                if($result['status'] == 1000) {
                     $content .= "城市：".$result['data']['city']."\n";
                     $content .= "日期：".$result['data']['forecast'][0]['date']."\n";
                     $content .= "天气：".$result['data']['forecast'][0]['type']."\n";
