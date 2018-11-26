@@ -52,7 +52,7 @@ class message{
         $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$this->appid."&secret=".$this->appsecret;
         $data = $this->wxCurl($url);
 
-        var_dump($data);
+        //var_dump($data);
 
         return $data;
     }
